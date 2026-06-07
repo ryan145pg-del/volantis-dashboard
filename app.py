@@ -6,7 +6,7 @@ No signal logic, no composite ranks, no trade recommendations.
 """
 import streamlit as st
 
-from src.data_loader import UNAVAILABLE_MSG, get_regime_data
+from src.data_loader import UNAVAILABLE_MSG, get_regime_data, get_download_error
 from src.components.regime import render_regime
 from src.components.implied_vol import render_implied_vol
 from src.components.mfiv import render_mfiv
@@ -25,10 +25,25 @@ st.caption("Quantitative volatility intelligence · SPY & QQQ · Updated daily a
 
 st.divider()
 
-# Gate on data availability — all panels use the same bundle
+# Gate on data availability — surface the real error if download fails
 regime_df = get_regime_data()
 if regime_df.empty:
-    st.error(UNAVAILABLE_MSG)
+    err = get_download_error()
+    if err:
+        st.error(f"Data load failed: {err}")
+        st.info(
+            "Check that Streamlit Cloud secrets are set correctly. "
+            "Expected format in the Secrets manager:\n\n"
+            "```toml\n"
+            "[r2]\n"
+            'endpoint = "https://ACCOUNT_ID.r2.cloudflarestorage.com"\n'
+            'access_key_id = "YOUR_KEY"\n'
+            'secret_access_key = "YOUR_SECRET"\n'
+            'bucket = "volantis-data"\n'
+            "```"
+        )
+    else:
+        st.error(UNAVAILABLE_MSG)
     st.stop()
 
 render_regime(regime_df)

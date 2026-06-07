@@ -2,11 +2,15 @@
 data_loader.py — Download the dashboard bundle from Cloudflare R2 and expose
 per-panel query functions, each cached independently for 1 hour.
 
-Credentials are read exclusively from st.secrets["r2"] — never from .env or
+Credentials are read exclusively from st.secrets — never from .env or
 environment variables. This repo is public; no secrets may appear in source.
 
+Supported secrets formats (both work):
+  Nested:  [r2] section with endpoint / access_key_id / secret_access_key / bucket
+  Flat:    R2_ENDPOINT / R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY / R2_BUCKET
+
 Bundle key: db/dashboard_bundle.duckdb (~1.5 MB)
-Tables available: vix_signal, macro_signal, mfiv_signal, bkm_signal, feature_store
+Tables: vix_signal, macro_signal, mfiv_signal, bkm_signal, feature_store
 """
 from __future__ import annotations
 
@@ -26,35 +30,63 @@ UNAVAILABLE_MSG = (
 )
 
 
+def _r2_secret(key_nested: str, key_flat: str) -> str:
+    """Read an R2 credential from either secrets format."""
+    # Try nested [r2] section first
+    r2 = st.secrets.get("r2", {})
+    val = r2.get(key_nested) if r2 else None
+    if val:
+        return val
+    # Fall back to flat top-level key
+    val = st.secrets.get(key_flat)
+    if val:
+        return val
+    raise KeyError(
+        f"Missing R2 credential. Expected st.secrets['r2']['{key_nested}'] "
+        f"or st.secrets['{key_flat}']."
+    )
+
+
 def _make_r2_client():
-    r2 = st.secrets["r2"]
     return boto3.client(
         "s3",
-        endpoint_url=r2["endpoint"],
-        aws_access_key_id=r2["access_key_id"],
-        aws_secret_access_key=r2["secret_access_key"],
+        endpoint_url=_r2_secret("endpoint", "R2_ENDPOINT"),
+        aws_access_key_id=_r2_secret("access_key_id", "R2_ACCESS_KEY_ID"),
+        aws_secret_access_key=_r2_secret("secret_access_key", "R2_SECRET_ACCESS_KEY"),
         region_name="auto",
     )
 
 
+def _get_bucket() -> str:
+    return _r2_secret("bucket", "R2_BUCKET")
+
+
 @st.cache_resource(ttl=3600)
-def _get_db_path() -> str | None:
-    """Download the dashboard bundle from R2. Cached for 1 hour across all sessions."""
+def _get_db_path() -> str:
+    """Download the dashboard bundle from R2. Returns path or raises on failure."""
+    client = _make_r2_client()
+    bucket = _get_bucket()
+    db_path = Path(tempfile.gettempdir()) / "volantis_bundle.duckdb"
+    client.download_file(bucket, BUNDLE_R2_KEY, str(db_path))
+    return str(db_path)
+
+
+def get_download_error() -> str | None:
+    """Return a human-readable error string if the R2 download fails, else None."""
     try:
-        client = _make_r2_client()
-        bucket = st.secrets["r2"]["bucket"]
-        db_path = Path(tempfile.gettempdir()) / "volantis_bundle.duckdb"
-        client.download_file(bucket, BUNDLE_R2_KEY, str(db_path))
-        return str(db_path)
-    except (BotoCoreError, ClientError, KeyError, Exception):
+        _get_db_path()
         return None
+    except KeyError as e:
+        return f"Secrets configuration error: {e}"
+    except (BotoCoreError, ClientError) as e:
+        return f"R2 connection error: {e}"
+    except Exception as e:
+        return f"Unexpected error: {type(e).__name__}: {e}"
 
 
 def _query(sql: str, params: list | None = None) -> pd.DataFrame:
-    db = _get_db_path()
-    if not db:
-        return pd.DataFrame()
     try:
+        db = _get_db_path()
         with duckdb.connect(db, read_only=True) as conn:
             return conn.execute(sql, params or []).df()
     except Exception:
