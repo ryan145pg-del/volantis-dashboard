@@ -61,4 +61,37 @@ st.divider()
 render_history()
 
 st.divider()
+
+# Email list capture — set buttondown_username in Streamlit Cloud secrets to activate
+_bd_user = st.secrets.get("buttondown_username")
+if _bd_user:
+    st.markdown(
+        f"""
+<div style="background:#111118;border:1px solid #1e1e2e;border-radius:8px;
+            padding:20px 24px;margin:8px 0;max-width:500px">
+  <p style="color:#E8E8F0;font-size:0.9rem;margin:0 0 4px 0;font-family:monospace;font-weight:700">
+    Daily vol regime updates
+  </p>
+  <p style="color:#888;font-size:0.8rem;margin:0 0 14px 0;font-family:monospace">
+    One email per signal day · No spam · Unsubscribe anytime
+  </p>
+  <form action="https://buttondown.email/api/emails/embed-subscribe/{_bd_user}"
+        method="post"
+        target="popupwindow"
+        onsubmit="window.open('https://buttondown.email/{_bd_user}', 'popupwindow')"
+        style="display:flex;gap:8px;flex-wrap:wrap">
+    <input type="email" name="email" placeholder="your@email.com"
+           style="flex:1;min-width:200px;background:#0A0A0F;border:1px solid #333;
+                  color:#E8E8F0;padding:9px 12px;border-radius:4px;
+                  font-size:0.85rem;font-family:monospace"/>
+    <input type="submit" value="Subscribe"
+           style="background:#00D4FF;color:#0A0A0F;border:none;padding:9px 18px;
+                  border-radius:4px;font-weight:700;font-size:0.85rem;
+                  font-family:monospace;cursor:pointer;white-space:nowrap"/>
+  </form>
+</div>
+        """,
+        unsafe_allow_html=True,
+    )
+
 st.caption("Volantis — Quantitative volatility intelligence. Updated daily after market close.")
