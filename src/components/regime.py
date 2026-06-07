@@ -22,11 +22,11 @@ def _regime_label(vix: float) -> tuple[str, str]:
 
 def _ts_label(vix_9d: float, vix: float, vix_3m: float) -> str:
     if pd.isna(vix_9d) or pd.isna(vix_3m):
-        return "Term structure unavailable"
+        return "Unavailable"
     if vix_9d < vix < vix_3m:
-        return "Contango — normal"
+        return "Contango"
     if vix_9d > vix:
-        return "Backwardation — stress signal"
+        return "Backwardation"
     return "Flat"
 
 
@@ -69,7 +69,13 @@ def render_regime(df: pd.DataFrame) -> None:
     vix     = latest["vix"]
     vix_9d  = latest["vix_9d"]
     vix_3m  = latest["vix_3m"]
-    hy      = latest.get("hy_spread", float("nan"))
+    hy           = latest.get("hy_spread_lkg", float("nan"))
+    hy_freshness = latest.get("hy_freshness_date")
+    hy_is_stale  = (
+        hy_freshness is not None
+        and str(hy_freshness) != str(latest["trade_date"])
+        and not pd.isna(hy)
+    )
 
     label, colour = _regime_label(vix)
     hy_label, hy_colour = _hy_label(hy)
@@ -95,6 +101,8 @@ def render_regime(df: pd.DataFrame) -> None:
             delta=hy_label,
             delta_color="off",
         )
+        if hy_is_stale:
+            st.caption(f"as of {hy_freshness}")
 
     # VIX 5-day sparkline
     vix_series = df["vix"].dropna().iloc[:5][::-1]

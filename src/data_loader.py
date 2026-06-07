@@ -95,8 +95,13 @@ def _query(sql: str, params: list | None = None) -> pd.DataFrame:
 
 @st.cache_data(ttl=3600)
 def get_regime_data() -> pd.DataFrame:
-    """VIX + HY spread for the last 90 days. Used by the Regime panel."""
-    return _query("""
+    """VIX + HY spread for the last 90 days. Used by the Regime panel.
+
+    Adds hy_spread_lkg (last-known-good value when today's FRED data is
+    missing due to Railway timeout) and hy_freshness_date (source date).
+    Component shows a muted 'as of [date]' caption when the fallback fires.
+    """
+    df = _query("""
         SELECT v.trade_date,
                v.vix, v.vix_9d, v.vix_3m, v.vvix,
                m.hy_spread
@@ -105,6 +110,28 @@ def get_regime_data() -> pd.DataFrame:
         ORDER BY v.trade_date DESC
         LIMIT 90
     """)
+    if df.empty:
+        return df
+
+    lkg = _query("""
+        SELECT trade_date AS hy_freshness_date,
+               hy_spread  AS hy_spread_lkg
+        FROM macro_signal
+        WHERE hy_spread IS NOT NULL
+        ORDER BY trade_date DESC
+        LIMIT 1
+    """)
+
+    if not lkg.empty:
+        lkg_val  = lkg.iloc[0]["hy_spread_lkg"]
+        lkg_date = lkg.iloc[0]["hy_freshness_date"]
+        df["hy_spread_lkg"]     = df["hy_spread"].where(df["hy_spread"].notna(), lkg_val)
+        df["hy_freshness_date"] = df["trade_date"].where(df["hy_spread"].notna(), lkg_date)
+    else:
+        df["hy_spread_lkg"]     = df["hy_spread"]
+        df["hy_freshness_date"] = df["trade_date"]
+
+    return df
 
 
 @st.cache_data(ttl=3600)
