@@ -72,60 +72,45 @@ st.markdown(
   </p>
 
   <p style="color:#bbb;font-size:0.85rem;line-height:1.65;margin:0 0 20px 0;font-family:monospace">
-    Volantis is a quantitative research publication measuring volatility
-    conditions in the SPY and QQQ options markets. Each trading day we publish
-    readings of implied volatility, term structure, and market-wide sentiment
-    indicators — the same inputs professional derivatives desks use to frame
-    short-volatility risk.
+    Volantis publishes daily readings of volatility conditions in the SPY and
+    QQQ options markets. The dashboard presents the key features derivatives
+    traders use to understand the current market environment — not signals or
+    recommendations, but the underlying data that informs them.
   </p>
 
   <p style="color:#00D4FF;font-size:0.78rem;margin:0 0 8px 0;font-family:monospace;font-weight:700;letter-spacing:0.08em">
-    WHAT WE MEASURE
+    WHAT THE DASHBOARD SHOWS
   </p>
   <p style="color:#bbb;font-size:0.85rem;line-height:1.65;margin:0 0 20px 0;font-family:monospace">
-    The dashboard tracks several distinct signals. <strong style="color:#E8E8F0">Implied volatility</strong>
-    measures what the options market is pricing in as future realised movement.
-    <strong style="color:#E8E8F0">Model-free IV (MFIV)</strong> integrates the entire options smile
-    rather than a single at-the-money strike, giving a more complete picture of
-    aggregate uncertainty. <strong style="color:#E8E8F0">BKM moments</strong> (risk-neutral skewness
-    and kurtosis) reveal how the market is pricing the shape of the return
-    distribution — not just its width. <strong style="color:#E8E8F0">Term structure slope</strong>
-    captures whether near-dated volatility is trading at a premium to longer-dated
-    volatility, a historically reliable stress indicator. These are read as a
-    composite, not in isolation.
+    <strong style="color:#E8E8F0">Implied volatility</strong> measures what the
+    options market is currently pricing in as expected future movement — a direct
+    read on how much uncertainty participants are paying to hedge.
+    <strong style="color:#E8E8F0">Model-free IV (MFIV)</strong> integrates the
+    entire options smile rather than a single at-the-money strike, capturing
+    information embedded across the full distribution of outcomes.
+    <strong style="color:#E8E8F0">BKM moments</strong> (risk-neutral skewness and
+    kurtosis) describe the shape of that distribution — whether the market is
+    pricing tail risk asymmetrically, and how fat those tails are relative to
+    a normal distribution.
+    <strong style="color:#E8E8F0">VIX term structure</strong> shows whether
+    near-dated volatility is elevated relative to longer-dated expectations,
+    which historically distinguishes acute stress from sustained elevated regimes.
+    All readings are updated each evening after market close.
   </p>
 
   <p style="color:#00D4FF;font-size:0.78rem;margin:0 0 8px 0;font-family:monospace;font-weight:700;letter-spacing:0.08em">
-    HOW WE VALIDATE
+    WHERE WE'RE HEADED
   </p>
   <p style="color:#bbb;font-size:0.85rem;line-height:1.65;margin:0 0 20px 0;font-family:monospace">
-    The core problem in quantitative research is that if you test enough ideas,
-    some will look good purely by chance. We address this directly. Every signal
-    is evaluated on data it never touched during development — a held-out
-    out-of-sample period starting January 2025. We apply Benjamini-Hochberg false
-    discovery rate correction across all tests, which controls the expected
-    proportion of false positives when testing many signals simultaneously.
-    Confidence intervals are computed via stationary block bootstrap, a method
-    that accounts for the autocorrelation present in daily volatility data —
-    standard p-values assume independence between observations, which daily vol
-    series do not have. Finally, we strip out common market factors (Fama-French
-    5-factor + momentum) to confirm predictive power is genuine alpha rather than
-    disguised exposure to broad market moves.
-  </p>
-  <p style="color:#bbb;font-size:0.85rem;line-height:1.65;margin:0 0 20px 0;font-family:monospace">
-    The result: our primary composite signal shows an out-of-sample information
-    coefficient of +0.55 across 343 trading days, with all five complete quarters
-    independently statistically robust under block bootstrap. The factor-adjusted
-    IC — after stripping market exposure — remains significant at +0.20.
+    The features shown here are the building blocks of systematic volatility
+    research. We are developing tools that allow traders to explore how these
+    features relate to future volatility outcomes — testing and building their
+    own analytical frameworks from the same data the dashboard displays.
   </p>
 
-  <p style="color:#00D4FF;font-size:0.78rem;margin:0 0 8px 0;font-family:monospace;font-weight:700;letter-spacing:0.08em">
-    WHAT THIS IS NOT
-  </p>
   <p style="color:#888;font-size:0.82rem;line-height:1.65;margin:0;font-family:monospace">
-    This dashboard presents research and historical data only. It is not
-    investment advice, a personalised recommendation, or a signal service.
-    We describe our own research observations and positioning; readers are
+    This dashboard presents market data and research only. It is not investment
+    advice, a personalised recommendation, or a signal service. Readers are
     responsible for their own trading decisions.
   </p>
 
