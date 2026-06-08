@@ -65,26 +65,70 @@ st.divider()
 # About / methodology / disclaimer — framed as research publication (FCA s21 FSMA exemption)
 st.markdown(
     """
-<div style="background:#111118;border:1px solid #1e1e2e;border-radius:8px;
-            padding:20px 24px;margin:8px 0">
-  <p style="color:#E8E8F0;font-size:0.9rem;margin:0 0 10px 0;font-family:monospace;font-weight:700">
+<div style="background:#111118;border:1px solid #1e1e2e;border-radius:8px;padding:28px 32px;margin:8px 0">
+
+  <p style="color:#E8E8F0;font-size:1rem;margin:0 0 16px 0;font-family:monospace;font-weight:700">
     About Volantis
   </p>
-  <p style="color:#bbb;font-size:0.85rem;line-height:1.55;margin:0 0 12px 0;font-family:monospace">
-    Volantis is a quantitative volatility research publication covering the SPY
-    and QQQ options markets. We publish daily observations of implied volatility,
-    term structure, model-free moments (MFIV, BKM), and macro regime indicators.
-    Our methodology applies institutional-grade statistical validation:
-    stationary block bootstrap confidence intervals (Politis-Romano), Fama-French
-    factor adjustment with in-sample beta estimation, and multiple-testing
-    corrections (Benjamini-Hochberg FDR).
+
+  <p style="color:#bbb;font-size:0.85rem;line-height:1.65;margin:0 0 20px 0;font-family:monospace">
+    Volantis is a quantitative research publication measuring volatility
+    conditions in the SPY and QQQ options markets. Each trading day we publish
+    readings of implied volatility, term structure, and market-wide sentiment
+    indicators — the same inputs professional derivatives desks use to frame
+    short-volatility risk.
   </p>
-  <p style="color:#888;font-size:0.78rem;line-height:1.55;margin:0;font-family:monospace">
-    This dashboard presents research and methodology only. It is not investment
-    advice, a personalised recommendation, or a signal service. We describe our
-    own research and positioning; readers are responsible for their own
-    trading decisions.
+
+  <p style="color:#00D4FF;font-size:0.78rem;margin:0 0 8px 0;font-family:monospace;font-weight:700;letter-spacing:0.08em">
+    WHAT WE MEASURE
   </p>
+  <p style="color:#bbb;font-size:0.85rem;line-height:1.65;margin:0 0 20px 0;font-family:monospace">
+    The dashboard tracks several distinct signals. <strong style="color:#E8E8F0">Implied volatility</strong>
+    measures what the options market is pricing in as future realised movement.
+    <strong style="color:#E8E8F0">Model-free IV (MFIV)</strong> integrates the entire options smile
+    rather than a single at-the-money strike, giving a more complete picture of
+    aggregate uncertainty. <strong style="color:#E8E8F0">BKM moments</strong> (risk-neutral skewness
+    and kurtosis) reveal how the market is pricing the shape of the return
+    distribution — not just its width. <strong style="color:#E8E8F0">Term structure slope</strong>
+    captures whether near-dated volatility is trading at a premium to longer-dated
+    volatility, a historically reliable stress indicator. These are read as a
+    composite, not in isolation.
+  </p>
+
+  <p style="color:#00D4FF;font-size:0.78rem;margin:0 0 8px 0;font-family:monospace;font-weight:700;letter-spacing:0.08em">
+    HOW WE VALIDATE
+  </p>
+  <p style="color:#bbb;font-size:0.85rem;line-height:1.65;margin:0 0 20px 0;font-family:monospace">
+    The core problem in quantitative research is that if you test enough ideas,
+    some will look good purely by chance. We address this directly. Every signal
+    is evaluated on data it never touched during development — a held-out
+    out-of-sample period starting January 2025. We apply Benjamini-Hochberg false
+    discovery rate correction across all tests, which controls the expected
+    proportion of false positives when testing many signals simultaneously.
+    Confidence intervals are computed via stationary block bootstrap, a method
+    that accounts for the autocorrelation present in daily volatility data —
+    standard p-values assume independence between observations, which daily vol
+    series do not have. Finally, we strip out common market factors (Fama-French
+    5-factor + momentum) to confirm predictive power is genuine alpha rather than
+    disguised exposure to broad market moves.
+  </p>
+  <p style="color:#bbb;font-size:0.85rem;line-height:1.65;margin:0 0 20px 0;font-family:monospace">
+    The result: our primary composite signal shows an out-of-sample information
+    coefficient of +0.55 across 343 trading days, with all five complete quarters
+    independently statistically robust under block bootstrap. The factor-adjusted
+    IC — after stripping market exposure — remains significant at +0.20.
+  </p>
+
+  <p style="color:#00D4FF;font-size:0.78rem;margin:0 0 8px 0;font-family:monospace;font-weight:700;letter-spacing:0.08em">
+    WHAT THIS IS NOT
+  </p>
+  <p style="color:#888;font-size:0.82rem;line-height:1.65;margin:0;font-family:monospace">
+    This dashboard presents research and historical data only. It is not
+    investment advice, a personalised recommendation, or a signal service.
+    We describe our own research observations and positioning; readers are
+    responsible for their own trading decisions.
+  </p>
+
 </div>
     """,
     unsafe_allow_html=True,
